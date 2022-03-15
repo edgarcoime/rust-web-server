@@ -17,12 +17,11 @@ fn handle_connection(mut stream: TcpStream) {
 
     // TODO: handle reading error
     stream.read(&mut buffer).unwrap();
-    println!("Request: {}", String::from_utf8_lossy(&buffer[..]))
+    println!("Request: {}", String::from_utf8_lossy(&buffer[..]));
 
-    // HTTP-Version Status-Code Reason-Pharse CRLF
-    // headers CRLF
-    // message-body
-    //
-    // ex: HTTP/1.1 200 OK\r\n\r\n
-    // Must add reason phrase and carriage return line feed sequences
+    let response: &str = "HTTP/1.1 200 OK\r\n\r\n";
+
+    // TODO: Handle stream unwrap errors as well as flush
+    stream.write(response.as_bytes()).unwrap();
+    stream.flush().unwrap()
 }
