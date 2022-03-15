@@ -3,14 +3,21 @@ use std::net::{TcpListener, TcpStream};
 use std::io::prelude::*;
 use std::time::Duration;
 
+use rust_web_server::ThreadPool;
+
 fn main() {
     // TODO: Handle error case gracefully
     let listener = TcpListener::bind("127.0.0.1:7878").unwrap();
 
+    let thread_pool = ThreadPool::new(4);
+
     for stream in listener.incoming() {
         // TODO: Handle error
         let stream = stream.unwrap();
-        handle_connection(stream);
+
+        thread_pool.execute(|| {
+            handle_connection(stream);
+        });
     }
 }
 
