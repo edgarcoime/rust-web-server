@@ -19,13 +19,29 @@ fn handle_connection(mut stream: TcpStream) {
     // TODO: handle reading error
     stream.read(&mut buffer).unwrap();
 
-    let contents = fs::read_to_string("index.html").unwrap();
-    // TODO: Handle potential error
-    let response = format!(
-        "HTTP/1.1 200 OK\r\nContent-Length: {}\r\n\r\n{}",
-        contents.len(),
-        contents,
-    );
+    let get = b"GET / HTTP/1.1\r\n";
+    let response: String;
+    if buffer.starts_with(get) { // If buffer starts with expected string send index
+        let status_line = "HTTP/1.1 200 OK";
+        let contents = fs::read_to_string("index.html").unwrap();
+        // TODO: Handle potential error
+        response = format!(
+            "{}\r\nContent-Length: {}\r\n\r\n{}",
+            status_line,
+            contents.len(),
+            contents,
+        );
+    } else { // If buffer is something we don't expect send 404 page
+        let status_line = "HTTP/1.1 404 NOT FOUND";
+        let contents = fs::read_to_string("404.html").unwrap();
+        
+        response = format!(
+            "{}\r\nContent-Length: {}\r\n\r\n{}",
+            status_line,
+            contents.len(),
+            contents,
+        );
+    }
 
     // TODO: Handle stream unwrap errors as well as flush
     stream.write(response.as_bytes()).unwrap();
